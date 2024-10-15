@@ -1,8 +1,12 @@
 from typing import Final
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+import os
+from dotenv import load_dotenv
 
-TOKEN: Final = '7858370163:AAHSRhPPxoxHzBbL_-ph-V5LWstDuKNiuGY'
+load_dotenv()
+
+TOKEN: Final = os.getenv('TOKEN')
 BOT_USERNAME: Final = '@pearldeImg_bot'
 
 # Command

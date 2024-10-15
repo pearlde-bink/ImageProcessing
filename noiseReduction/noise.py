@@ -12,5 +12,5 @@ output_image = image.filter(ImageFilter.SHARPEN())
 #Save the resulting image
 
 save_path = asksaveasfilename()
-str = save_path + "_edge.jpg"
+str = save_path + "_noised.jpg"
 image.save(str, optimize=True, quality=50)
