@@ -10,7 +10,6 @@ output_image = image.filter(ImageFilter.DETAIL())
 output_image = image.filter(ImageFilter.SHARPEN())
 
 #Save the resulting image
-
 save_path = asksaveasfilename()
 str = save_path + "_noised.jpg"
-image.save(str, optimize=True, quality=50)
+output_image.save(str, optimize=True, quality=50)
