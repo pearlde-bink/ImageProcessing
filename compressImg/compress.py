@@ -16,5 +16,5 @@ resized_image.save(str, optimize=True, quality=50)
 original_size = os.path.getsize(file_path)
 compressed_size = os.path.getsize(str)
 
-print("Original Size: ", original_size)
-print("Compressed Size: ", compressed_size)
+print("Original Size: ", os.stat(str).st_size())
+print("Compressed Size: ", os.stat(file_path).st_size)
