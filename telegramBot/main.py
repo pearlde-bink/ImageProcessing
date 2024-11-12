@@ -22,7 +22,7 @@ TOKEN: Final = os.getenv('TOKEN')
 BOT_USERNAME: Final = '@pearldeImg_bot'
 
 #Define states for the convo
-MENU, SHRINK, COMPRESS, NOISEREDUCTION, EDGEDETECTION, CROP, BGREMOVAL = range(7)
+MENU, SHRINK, COMPRESS, NOISEREDUCTION, EDGEDETECTION, CROP, BGREMOVAL, BLUR, VINTAGE, HAUNTED, INVERT, GREY  = range(12)
 
 # Command
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -33,6 +33,12 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton('Edge Detection', callback_data='edgeDetection')],
         [InlineKeyboardButton('Background Removal', callback_data='bgRemoval')],
         [InlineKeyboardButton('Crop', callback_data='crop')],
+        # [InlineKeyboardButton('Effect', callback_data='effect')],
+        [InlineKeyboardButton('Blur', callback_data='blur')],
+        [InlineKeyboardButton('Vintage', callback_data='vintage')],
+        [InlineKeyboardButton('Haunted', callback_data='haunted')],
+        [InlineKeyboardButton('Invert', callback_data='invert')],
+        [InlineKeyboardButton('Grey', callback_data='grey')],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text('Hello! Please choose an image processing option:', reply_markup=reply_markup)
@@ -41,8 +47,37 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text('Im your Image processing friend! Type something so I can respond!')
     
-# async def custom_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-#     await update.message.reply_text('This is a custom command!')
+# async def effect_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
+#     query = update.callback_query
+#     await query.answer() 
+    
+#     effect_keyboard = [
+#         [InlineKeyboardButton('Blur', callback_data='blur')],
+#         [InlineKeyboardButton('Vintage', callback_data='vintage')],
+#         [InlineKeyboardButton('Haunted', callback_data='haunted')],
+#         [InlineKeyboardButton('Invert', callback_data='invert')],
+#         [InlineKeyboardButton('Grey', callback_data='grey')],
+#     ]
+#     reply_markup = InlineKeyboardMarkup(effect_keyboard)
+#     await query.edit_message_text('Please choose an effect:', reply_markup=reply_markup)
+
+# # Handler to go back to the main menu
+# async def main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
+#     query = update.callback_query
+#     await query.answer()
+
+#     # Re-display the main menu
+#     keyboard = [
+#         [InlineKeyboardButton('Shrink', callback_data='shrink')],
+#         [InlineKeyboardButton('Compress', callback_data='compress')],
+#         [InlineKeyboardButton('Noise Reduction', callback_data='noiseReduction')],
+#         [InlineKeyboardButton('Edge Detection', callback_data='edgeDetection')],
+#         [InlineKeyboardButton('Background Removal', callback_data='bgRemoval')],
+#         [InlineKeyboardButton('Crop', callback_data='crop')],
+#         [InlineKeyboardButton('Effect', callback_data='effect')],
+#     ]
+#     reply_markup = InlineKeyboardMarkup(keyboard)
+#     await query.edit_message_text('Hello! Please choose an image processing option:', reply_markup=reply_markup)
 
 # Buttons on start command
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -67,7 +102,43 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     elif query.data == "bgRemoval":
         await query.edit_message_text("Please upload the image for background removal")
         return BGREMOVAL
-    
+    elif query.data == "blur":
+        await query.edit_message_text("Please upload the image you want to blur")
+        return BLUR
+    elif query.data == "vintage":
+        await query.edit_message_text("Please upload the image you for vintage effect")
+        return VINTAGE
+    elif query.data == "haunted":
+        await query.edit_message_text("Please upload the image for haunted effect")
+        return HAUNTED
+    elif query.data == "invert":
+        await query.edit_message_text("Please upload the image for invert effect")
+        return INVERT
+    elif query.data == "grey":
+        await query.edit_message_text("Please upload the image for grey effect")
+        return GREY
+
+# Buttons on effect command
+async def button_effect(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    query = update.callback_query
+    await query.answer()
+
+    if query.data == "blur":
+        await query.edit_message_text("Please upload the image you want to blur")
+        return BLUR
+    elif query.data == "vintage":
+        await query.edit_message_text("Please upload the image you for vintage effect")
+        return VINTAGE
+    elif query.data == "haunted":
+        await query.edit_message_text("Please upload the image for haunted effect")
+        return HAUNTED
+    elif query.data == "invert":
+        await query.edit_message_text("Please upload the image for invert effect")
+        return INVERT
+    elif query.data == "grey":
+        await query.edit_message_text("Please upload the image for grey effect")
+        return GREY
+ 
 # Process image with each features
 async def process_image(update: Update, context: ContextTypes.DEFAULT_TYPE, process_type: str):
     if update.message.photo:
@@ -88,6 +159,16 @@ async def process_image(update: Update, context: ContextTypes.DEFAULT_TYPE, proc
         img_wh1 = "width: " + str(img_size[0]) + " height: " +  str(img_size[1]) #get dimensions
         output_image = None
         response_text = ""
+        pixels = image.getdata()
+        new_pixels = []
+        #reduce image size for better performance
+        # width = image.width
+        # height = image.height
+        # mwidth = width // 1000
+        # mheight = height // 1000
+        # if mwidth < mheight: scale = mheight
+        # else: scale = mwidth
+        # if scale != 0: img = img.resize((width // scale, height // scale))
         
         if process_type == "noiseReduction":
             output_image = image.filter(ImageFilter.DETAIL())
@@ -118,8 +199,74 @@ async def process_image(update: Update, context: ContextTypes.DEFAULT_TYPE, proc
             print("remove bg")
             response_text = f"Background removal finished!"    
                     
-        # elif process_type == "crop":
-        #     output_image = remove(image)
+        elif process_type == "crop":
+            output_image = remove(image)
+        
+        elif process_type == "blur":
+            output_image = image.filter(ImageFilter.BLUR)
+            response_text = f"Blur finished!"
+        
+        elif process_type == "grey":
+            for pixel in pixels: #save original pixels to new array
+                new_pixels.append(pixel)
+            location = 0 # start at 1st pixel of image
+            while location < len(new_pixels):
+                p = new_pixels[location] #get current color
+                r, g, b = p[0], p[1], p[2] #get rgb values
+                newr = newg = newb = (r + g + b) // 3 #average rgb values
+                new_pixels[location] = (newr, newg, newb)
+                location += 1
+            output_image = Image.new("RGB", image.size) #make new image
+            output_image.putdata(new_pixels) #put new pixels into new image
+            response_text = f"Greyify finished!"    
+            
+        elif process_type == "invert":
+            for pixel in pixels: #save original pixels to new array
+                new_pixels.append(pixel)
+            location = 0 # start at 1st pixel of image
+            while location < len(new_pixels):
+                p = new_pixels[location] #get current color
+                r, g, b = p[0], p[1], p[2] #get rgb values
+                newr = 255 - r #invert r value
+                newg = 255 - g #invert g value
+                newb = 255 - b #invert b value
+                new_pixels[location] = (newr, newg, newb)
+                location += 1
+            output_image = Image.new("RGB", image.size) #make new image
+            output_image.putdata(new_pixels) #put new pixels into new image
+            response_text = f"Inverting finished!"    
+        
+        elif process_type == "haunted":
+            for pixel in pixels: #save original pixels to new array
+                new_pixels.append(pixel)
+            location = 0 # start at 1st pixel of image
+            while location < len(new_pixels):
+                p = new_pixels[location] #get current color
+                r, g, b = p[0], p[1], p[2] #get rgb values
+                newr = min((r + g + b) // 8, 255)   # Darker and more intense red tones
+                newg = min((r + g + b) // 20, 255)  # Green tones are subdued for a creepy, dark atmosphere
+                newb = min((r + g + b) // 5, 255)   # Amplified blue for a cold, ghostly look
+                new_pixels[location] = (newr, newg, newb)
+                location += 1
+            output_image = Image.new("RGB", image.size) #make new image
+            output_image.putdata(new_pixels) #put new pixels into new image
+            response_text = f"Haunted image finished!"    
+        
+        elif process_type == "vintage":
+            for pixel in pixels: #save original pixels to new array
+                new_pixels.append(pixel)
+            location = 0 # start at 1st pixel of image
+            while location < len(new_pixels):
+                p = new_pixels[location] #get current color
+                r, g, b = p[0], p[1], p[2] #get rgb values
+                newr = min((r + g + b) // 3 + 30, 255)  # Warmer red, adding more saturation for retro feel
+                newg = min((r + g + b) // 3 + 20, 255)  # Slightly muted green for aged effect
+                newb = min((r + g + b) // 4, 255)       # Cooler blue to simulate faded colors
+                new_pixels[location] = (newr, newg, newb)
+                location += 1
+            output_image = Image.new("RGB", image.size) #make new image
+            output_image.putdata(new_pixels) #put new pixels into new image
+            response_text = f"Vintagify finished!"    
 
         # Save the processed image to a new file
         if output_image is not None:
@@ -158,6 +305,21 @@ async def crop_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def bg_removal_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return await process_image(update, context, "bgRemoval")
+
+async def vintage_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    return await process_image(update, context, "vintage")
+
+async def blur_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    return await process_image(update, context, "blur")
+
+async def haunted_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    return await process_image(update, context, "haunted")
+
+async def invert_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    return await process_image(update, context, "invert")
+
+async def grey_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    return await process_image(update, context, "grey")
 
 # Cancel selection
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -219,15 +381,24 @@ def main():
             NOISEREDUCTION: [MessageHandler(filters.PHOTO, noise_reduction_command)],
             EDGEDETECTION: [MessageHandler(filters.PHOTO, edge_detection_command)],
             BGREMOVAL: [MessageHandler(filters.PHOTO, bg_removal_command)],
-            CROP: [MessageHandler(filters.PHOTO, crop_command)]
+            CROP: [MessageHandler(filters.PHOTO, crop_command)],
+            VINTAGE: [MessageHandler(filters.PHOTO, vintage_command)],
+            GREY: [MessageHandler(filters.PHOTO, grey_command)],
+            INVERT: [MessageHandler(filters.PHOTO, invert_command)],
+            HAUNTED: [MessageHandler(filters.PHOTO, haunted_command)],
+            BLUR: [MessageHandler(filters.PHOTO, blur_command)],
         },
         fallbacks=[CommandHandler('cancel', cancel)],
     )
     
+    # effect_handler = CallbackQueryHandler(effect_menu, pattern='^effect$')
+    # main_menu_handler = CallbackQueryHandler(main_menu, pattern='^main_menu$')
+    
     # commands
     # app.add_handler(CommandHandler('start', start_command))
     app.add_handler(CommandHandler('help', help_command))
-    # app.add_handler(CommandHandler('custom', custom_command))
+    # app.add_handler(effect_handler)
+    # app.add_handler(main_menu_handler)
     
     app.add_handler(conversation_handler)
     
@@ -245,4 +416,5 @@ if __name__ == '__main__':
     main()
     
 #    '7858370163:AAHSRhPPxoxHzBbL_-ph-V5LWstDuKNiuGY'
+
     
